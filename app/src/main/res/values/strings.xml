@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">task1</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="login_button">Войти</string>
+    <string name="header">Войти в профиль</string>
+    <string name="first_name">First name: </string>
+    <string name="last_name">Last name: </string>
+</resources>
