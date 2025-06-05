@@ -6,4 +6,5 @@
     <string name="header">Войти в профиль</string>
     <string name="first_name">First name: </string>
     <string name="last_name">Last name: </string>
+    <string name="organization_info">Organization: </string>
 </resources>

@@ -2,26 +2,28 @@ package ru.alfabank.task1
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.alfabank.task1.repository.LoginData
 import ru.alfabank.task1.repository.LoginResult
 import ru.alfabank.task1.repository.Profile
-import ru.alfabank.task1.repository.ProfileRepository
+import ru.alfabank.task1.repository.ProfileInfo
+import ru.alfabank.task1.repository.Repository
 
 class ProfileViewModel(
-    val repository: ProfileRepository
+    val repository: Repository
 ) : ViewModel() {
 
-    var profileState = MutableStateFlow<Profile?>(null)
+    var profileInfoState = MutableStateFlow<ProfileInfo?>(null)
     var isLoginSuccess = MutableStateFlow(false)
     var loginData = MutableStateFlow(LoginData("", ""))
     var progressBarState = MutableStateFlow(false)
     var loginResult: LoginResult? = null
 
     fun login() {
-        viewModelScope.launch {
+        viewModelScope.launch(Job()) {
             progressBarState.value = true
             loginResult = repository.login(loginData.value)
             isLoginSuccess.update { true }
@@ -41,7 +43,7 @@ class ProfileViewModel(
     private fun getProfile() {
         viewModelScope.launch {
             progressBarState.value = true
-            profileState.value = repository.getProfile(loginResult!!.userId, loginResult!!.token)
+            profileInfoState.value = repository.getProfileInfo(loginResult!!.userId, loginResult!!.token)
             progressBarState.value = false
         }
     }

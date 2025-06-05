@@ -7,17 +7,22 @@ import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import ru.alfabank.task1.repository.JobInfo
+import ru.alfabank.task1.repository.LoginData
 import ru.alfabank.task1.repository.LoginResult
 import ru.alfabank.task1.repository.Profile
 
+// Файл можно не смотреть, не является частью интервью, эмуляция бекенда
 object BackendSimulator : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
+        Thread.sleep(200)
         val paths = chain.request().url.encodedPathSegments
 
         return when {
             paths.contains("getProfile") -> createProfileResponse(chain.request())
             paths.contains("login") -> createLoginResult(chain.request())
+            paths.contains("jobInfo") -> createJobInfoResult(chain.request())
             else -> throw IllegalStateException()
         }
     }
@@ -31,7 +36,30 @@ object BackendSimulator : Interceptor {
         return profile.toResponse(request)
     }
 
+    private fun createJobInfoResult(request: Request): Response {
+        val profile = JobInfo(
+            organizationName = "Alfa-Bank"
+        )
+
+        return profile.toResponse(request)
+    }
+
     private fun createLoginResult(request: Request): Response {
+        val stringBody = request.body.let { body ->
+            val buffer = okio.Buffer()
+            body?.writeTo(buffer)
+            buffer.readUtf8()
+        }
+        val login = Json.decodeFromString<LoginData>(stringBody)
+        if (login.login != "test" && login.password != "test") {
+            return Response.Builder()
+                .request(request)
+                .protocol(Protocol.HTTP_2)
+                .code(403)
+                .message("")
+                .build()
+        }
+
         val loginResult = LoginResult(
             token = "token",
             userId = "userId"

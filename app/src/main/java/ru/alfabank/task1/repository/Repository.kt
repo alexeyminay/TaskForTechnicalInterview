@@ -3,7 +3,9 @@ package ru.alfabank.task1.repository
 import android.content.Context
 import androidx.core.content.edit
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
@@ -12,7 +14,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import ru.alfabank.task1.mock.BackendSimulator
 import java.util.UUID
 
-class ProfileRepository(
+class Repository(
     private val context: Context
 ) {
 
@@ -21,14 +23,26 @@ class ProfileRepository(
         .addInterceptor(BackendSimulator)
         .build()
 
-    suspend fun getProfile(id: String, token: String): Profile = withContext(Dispatchers.Default) {
-        val request = Request.Builder()
+    suspend fun getProfileInfo(id: String, token: String): ProfileInfo = withContext(Dispatchers.Default) {
+        val profileRequest = Request.Builder()
             .url("https://test.example.ru/getProfile/$id")
             .get()
             .header("X-TOKEN", token)
             .build()
-        val response = okHttpClient.newCall(request).execute()
-        Json.decodeFromString(response.body!!.string())
+
+        val profileResponse = okHttpClient.newCall(profileRequest).execute()
+        val profile = Json.decodeFromString<Profile>(profileResponse.body!!.string())
+
+        val jobInfoRequest = Request.Builder()
+            .url("https://test.example.ru/jobInfo/$id")
+            .get()
+            .header("X-TOKEN", token)
+            .build()
+
+        val jobInfoResponse = okHttpClient.newCall(jobInfoRequest).execute()
+        val jobInfo = Json.decodeFromString<JobInfo>(jobInfoResponse.body!!.string())
+
+        ProfileInfo(profile, jobInfo)
     }
 
     suspend fun login(login: LoginData): LoginResult = withContext(Dispatchers.Default) {
