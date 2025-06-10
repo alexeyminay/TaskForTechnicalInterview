@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
                 val loginData by viewModel.loginData.collectAsState()
 
                 if (isLoginSuccess) {
-                    ProfileScreen(profileInfo = profileInfo)
+                    ProfileScreen(viewModel, profileInfo = profileInfo)
                 } else {
                     LoginScreen(
                         loginData = loginData,
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 if (progressBarState) {
-                    Box(modifier = Modifier.fillMaxSize()) {
+                    Box {
                         CircularProgressIndicator()
                     }
                 }

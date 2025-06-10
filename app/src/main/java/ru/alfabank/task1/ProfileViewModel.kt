@@ -28,7 +28,6 @@ class ProfileViewModel(
             loginResult = repository.login(loginData.value)
             isLoginSuccess.update { true }
             progressBarState.value = false
-            getProfile()
         }
     }
 
@@ -40,7 +39,7 @@ class ProfileViewModel(
         loginData.update { it.copy(login = login) }
     }
 
-    private fun getProfile() {
+    fun getProfile() {
         viewModelScope.launch {
             progressBarState.value = true
             profileInfoState.value = repository.getProfileInfo(loginResult!!.userId, loginResult!!.token)
